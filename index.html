@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>주식 종목 리스트 · 분석</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+  }
+  .container {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 560px;
+    overflow: hidden;
+  }
+  header {
+    background: #1f2937;
+    color: #fff;
+    padding: 24px;
+    text-align: center;
+  }
+  header h1 { font-size: 22px; font-weight: 600; }
+  header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+  .input-area {
+    display: flex;
+    gap: 8px;
+    padding: 20px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  #stockInput {
+    flex: 1;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  #stockInput:focus { border-color: #667eea; }
+  #addBtn {
+    background: #667eea;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0 20px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  #addBtn:hover { background: #5567d8; }
+  .stats {
+    padding: 12px 20px;
+    background: #f9fafb;
+    font-size: 13px;
+    color: #6b7280;
+    display: flex;
+    justify-content: space-between;
+  }
+  ul#stockList {
+    list-style: none;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  ul#stockList li {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    gap: 8px;
+    transition: background 0.1s;
+  }
+  ul#stockList li:hover { background: #f9fafb; }
+  ul#stockList li:last-child { border-bottom: none; }
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #667eea;
+    flex-shrink: 0;
+  }
+  .stock-name {
+    flex: 1;
+    font-size: 15px;
+    color: #1f2937;
+    min-width: 0;
+    word-break: break-all;
+  }
+  .stock-name.checked {
+    text-decoration: line-through;
+    color: #9ca3af;
+  }
+  .analyze-btn {
+    background: #10b981;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .analyze-btn:hover { background: #059669; }
+  .analyze-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+  .delete-btn {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.15s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .delete-btn:hover { background: #fee2e2; }
+  .empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 14px;
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 100;
+    animation: fadeIn 0.15s ease;
+  }
+  .modal-backdrop.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: #fff;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+    animation: slideUp 0.2s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-header {
+    padding: 20px 24px;
+    background: #1f2937;
+    color: #fff;
+    border-radius: 14px 14px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-header h2 { font-size: 18px; font-weight: 600; }
+  .modal-header .sub { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  .modal-body { padding: 20px 24px 24px; }
+  .price-block {
+    text-align: center;
+    padding: 18px 0 22px;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 18px;
+  }
+  .price-label { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+  .price-value { font-size: 32px; font-weight: 700; color: #1f2937; }
+  .price-change { margin-top: 8px; font-size: 14px; font-weight: 500; }
+  .price-change.up { color: #ef4444; }
+  .price-change.down { color: #2563eb; }
+  .price-change.flat { color: #6b7280; }
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 18px;
+    margin-bottom: 18px;
+  }
+  .info-item .info-label {
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .info-item .info-value {
+    font-size: 14px;
+    color: #1f2937;
+    font-weight: 500;
+  }
+  .signal-box {
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #f9fafb;
+    border-left: 4px solid #667eea;
+  }
+  .signal-box.buy { border-color: #ef4444; background: #fef2f2; }
+  .signal-box.hold { border-color: #6b7280; background: #f9fafb; }
+  .signal-box.sell { border-color: #2563eb; background: #eff6ff; }
+  .signal-title {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+  }
+  .signal-label {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .signal-box.buy .signal-label { color: #b91c1c; }
+  .signal-box.sell .signal-label { color: #1d4ed8; }
+  .signal-box.hold .signal-label { color: #374151; }
+  .signal-desc { font-size: 13px; color: #4b5563; line-height: 1.5; }
+  .disclaimer {
+    margin-top: 16px;
+    font-size: 11px;
+    color: #9ca3af;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .loading {
+    padding: 40px 20px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+  }
+  .spinner {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-msg {
+    padding: 24px;
+    background: #fef2f2;
+    border-radius: 10px;
+    color: #b91c1c;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .error-msg strong { display: block; margin-bottom: 6px; font-size: 15px; }
+  .hint {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 12px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .hint code {
+    background: #f3f4f6;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>주식 종목 리스트</h1>
+      <p>관심 종목을 추가하고 오늘의 시세를 분석하세요</p>
+    </header>
+    <div class="input-area">
+      <input type="text" id="stockInput" placeholder="종목명 또는 코드 (예: 삼성전자, 005930)" maxlength="40">
+      <button id="addBtn">추가</button>
+    </div>
+    <div class="stats">
+      <span id="totalCount">전체 0개</span>
+      <span id="checkedCount">체크 0개</span>
+    </div>
+    <ul id="stockList"></ul>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle">분석</h2>
+          <div class="sub" id="modalSubtitle"></div>
+        </div>
+        <button class="modal-close" id="modalClose" aria-label="닫기">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+<script>
+  const STORAGE_KEY = "stock-list-v1";
+
+  // 한국 주요 종목 이름 → Yahoo Finance 티커 매핑 (KOSPI .KS / KOSDAQ .KQ)
+  const KR_TICKERS = {
+    "삼성전자": "005930.KS",
+    "SK하이닉스": "000660.KS",
+    "LG에너지솔루션": "373220.KS",
+    "삼성바이오로직스": "207940.KS",
+    "현대차": "005380.KS",
+    "기아": "000270.KS",
+    "셀트리온": "068270.KS",
+    "POSCO홀딩스": "005490.KS",
+    "포스코홀딩스": "005490.KS",
+    "NAVER": "035420.KS",
+    "네이버": "035420.KS",
+    "카카오": "035720.KS",
+    "삼성SDI": "006400.KS",
+    "LG화학": "051910.KS",
+    "현대모비스": "012330.KS",
+    "KB금융": "105560.KS",
+    "신한지주": "055550.KS",
+    "삼성물산": "028260.KS",
+    "하나금융지주": "086790.KS",
+    "한화에어로스페이스": "012450.KS",
+    "고려아연": "010130.KS",
+    "삼성생명": "032830.KS",
+    "에코프로비엠": "247540.KQ",
+    "에코프로": "086520.KQ",
+    "알테오젠": "196170.KQ",
+    "HLB": "028300.KQ",
+    "리노공업": "058470.KQ",
+    "엔켐": "348370.KQ",
+    "JYP Ent.": "035900.KQ",
+    "JYP": "035900.KQ",
+    "에스엠": "041510.KQ",
+    "와이지엔터테인먼트": "122870.KQ",
+    "하이브": "352820.KS",
+    "한미반도체": "042700.KS",
+    "두산에너빌리티": "034020.KS",
+    "삼성전기": "009150.KS",
+    "LG전자": "066570.KS",
+    "SK이노베이션": "096770.KS",
+    "현대중공업": "329180.KS",
+    "HD한국조선해양": "009540.KS",
+    "한화오션": "042660.KS",
+  };
+
+  const input = document.getElementById("stockInput");
+  const addBtn = document.getElementById("addBtn");
+  const list = document.getElementById("stockList");
+  const totalCount = document.getElementById("totalCount");
+  const checkedCount = document.getElementById("checkedCount");
+  const modalBackdrop = document.getElementById("modalBackdrop");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalSubtitle = document.getElementById("modalSubtitle");
+  const modalBody = document.getElementById("modalBody");
+  const modalClose = document.getElementById("modalClose");
+
+  let stocks = loadStocks();
+
+  function loadStocks() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveStocks() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stocks));
+  }
+
+  function render() {
+    list.innerHTML = "";
+    if (stocks.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "empty";
+      empty.textContent = "아직 추가된 종목이 없습니다.";
+      list.appendChild(empty);
+    } else {
+      stocks.forEach(stock => {
+        const li = document.createElement("li");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "checkbox";
+        checkbox.checked = stock.checked;
+        checkbox.addEventListener("change", () => toggleStock(stock.id));
+
+        const name = document.createElement("span");
+        name.className = "stock-name" + (stock.checked ? " checked" : "");
+        name.textContent = stock.name;
+
+        const analyzeBtn = document.createElement("button");
+        analyzeBtn.className = "analyze-btn";
+        analyzeBtn.textContent = "분석";
+        analyzeBtn.title = "오늘의 종가와 투자 정보 분석";
+        analyzeBtn.addEventListener("click", () => analyzeStock(stock.name));
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "delete-btn";
+        delBtn.textContent = "×";
+        delBtn.title = "삭제";
+        delBtn.addEventListener("click", () => deleteStock(stock.id));
+
+        li.appendChild(checkbox);
+        li.appendChild(name);
+        li.appendChild(analyzeBtn);
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
+    totalCount.textContent = `전체 ${stocks.length}개`;
+    checkedCount.textContent = `체크 ${stocks.filter(s => s.checked).length}개`;
+  }
+
+  function addStock() {
+    const name = input.value.trim();
+    if (!name) return;
+    stocks.unshift({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      name,
+      checked: false,
+    });
+    input.value = "";
+    saveStocks();
+    render();
+    input.focus();
+  }
+
+  function deleteStock(id) {
+    stocks = stocks.filter(s => s.id !== id);
+    saveStocks();
+    render();
+  }
+
+  function toggleStock(id) {
+    const stock = stocks.find(s => s.id === id);
+    if (stock) {
+      stock.checked = !stock.checked;
+      saveStocks();
+      render();
+    }
+  }
+
+  // 사용자 입력을 Yahoo Finance 티커로 변환
+  function resolveTicker(raw) {
+    const trimmed = raw.trim();
+
+    if (/^[A-Z0-9.\-=^]+$/i.test(trimmed) && /\./.test(trimmed)) {
+      return trimmed.toUpperCase();
+    }
+
+    if (/^\d{6}$/.test(trimmed)) {
+      for (const [name, ticker] of Object.entries(KR_TICKERS)) {
+        if (ticker.startsWith(trimmed)) return ticker;
+      }
+      return trimmed + ".KS";
+    }
+
+    if (KR_TICKERS[trimmed]) return KR_TICKERS[trimmed];
+
+    const normalized = trimmed.replace(/\s+/g, "").toLowerCase();
+    for (const [name, ticker] of Object.entries(KR_TICKERS)) {
+      if (name.replace(/\s+/g, "").toLowerCase() === normalized) return ticker;
+    }
+
+    if (/^[A-Za-z.]+$/.test(trimmed)) return trimmed.toUpperCase();
+
+    return null;
+  }
+
+  async function fetchQuote(ticker) {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1mo`;
+    const proxied = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const res = await fetch(proxied);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data?.chart?.error) throw new Error(data.chart.error.description || "데이터 없음");
+    const result = data?.chart?.result?.[0];
+    if (!result) throw new Error("데이터 없음");
+    return result;
+  }
+
+  function formatNumber(n, opts = {}) {
+    if (n == null || isNaN(n)) return "-";
+    const { decimals = 0, currency } = opts;
+    const fixed = Number(n).toFixed(decimals);
+    const withComma = Number(fixed).toLocaleString("ko-KR", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+    return currency ? `${withComma} ${currency}` : withComma;
+  }
+
+  function formatLarge(n) {
+    if (n == null || isNaN(n)) return "-";
+    const abs = Math.abs(n);
+    if (abs >= 1e12) return (n / 1e12).toFixed(2) + "조";
+    if (abs >= 1e8) return (n / 1e8).toFixed(2) + "억";
+    if (abs >= 1e4) return (n / 1e4).toFixed(2) + "만";
+    return formatNumber(n);
+  }
+
+  function generateSignal(changePercent, current, fiftyTwoLow, fiftyTwoHigh) {
+    const range = fiftyTwoHigh - fiftyTwoLow;
+    const position = range > 0 ? (current - fiftyTwoLow) / range : 0.5;
+
+    if (changePercent <= -3 && position < 0.4) {
+      return {
+        kind: "buy",
+        label: "매수 관심 구간",
+        desc: `최근 하락 폭이 크고(${changePercent.toFixed(2)}%) 52주 가격대 하단(${(position * 100).toFixed(0)}% 위치)에 가까워 분할 매수 관심권으로 분류됩니다.`,
+      };
+    }
+    if (changePercent >= 3 && position > 0.85) {
+      return {
+        kind: "sell",
+        label: "차익 실현 고려",
+        desc: `당일 상승 폭이 크고(${changePercent.toFixed(2)}%) 52주 고가권(${(position * 100).toFixed(0)}% 위치) 근처입니다. 단기 과열 가능성을 점검하세요.`,
+      };
+    }
+    return {
+      kind: "hold",
+      label: "관망",
+      desc: `당일 변동(${changePercent.toFixed(2)}%)과 52주 가격대 위치(${(position * 100).toFixed(0)}%)를 보면 뚜렷한 신호 구간은 아닙니다. 추세 확인 후 대응하세요.`,
+    };
+  }
+
+  function openModal(title, subtitle, contentHtml) {
+    modalTitle.textContent = title;
+    modalSubtitle.textContent = subtitle || "";
+    modalBody.innerHTML = contentHtml;
+    modalBackdrop.classList.add("open");
+  }
+
+  function closeModal() {
+    modalBackdrop.classList.remove("open");
+  }
+
+  async function analyzeStock(rawName) {
+    openModal(rawName, "데이터 조회 중...", `
+      <div class="loading">
+        <div class="spinner"></div>
+        <div>오늘의 시세를 불러오는 중입니다.</div>
+      </div>
+    `);
+
+    let ticker = resolveTicker(rawName);
+    if (!ticker) {
+      modalBody.innerHTML = `
+        <div class="error-msg">
+          <strong>티커를 찾을 수 없습니다</strong>
+          종목명 "${escapeHtml(rawName)}"에 해당하는 티커 매핑이 없습니다.
+        </div>
+        <div class="hint">
+          한국 주식은 6자리 종목코드(예: <code>005930</code>)로 입력하거나<br>
+          미국 주식은 영문 티커(예: <code>AAPL</code>)로 추가해 보세요.
+        </div>
+      `;
+      return;
+    }
+
+    const candidates = [ticker];
+    if (/^\d{6}\.KS$/.test(ticker)) candidates.push(ticker.replace(".KS", ".KQ"));
+
+    let result = null;
+    let lastErr = null;
+    for (const t of candidates) {
+      try {
+        result = await fetchQuote(t);
+        ticker = t;
+        break;
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+
+    if (!result) {
+      modalBody.innerHTML = `
+        <div class="error-msg">
+          <strong>시세 조회 실패</strong>
+          ${escapeHtml(lastErr?.message || "알 수 없는 오류")}
+        </div>
+        <div class="hint">
+          잠시 후 다시 시도하거나, 정확한 티커(예: <code>005930.KS</code>)로 종목을 추가해 보세요.<br>
+          CORS 프록시(corsproxy.io)가 일시적으로 느릴 수 있습니다.
+        </div>
+      `;
+      return;
+    }
+
+    const meta = result.meta || {};
+    const current = meta.regularMarketPrice;
+    const previousClose = meta.chartPreviousClose ?? meta.previousClose;
+    const change = current != null && previousClose != null ? current - previousClose : null;
+    const changePct = change != null && previousClose ? (change / previousClose) * 100 : null;
+    const high52 = meta.fiftyTwoWeekHigh;
+    const low52 = meta.fiftyTwoWeekLow;
+    const dayHigh = meta.regularMarketDayHigh;
+    const dayLow = meta.regularMarketDayLow;
+    const volume = meta.regularMarketVolume;
+    const currency = meta.currency || "";
+    const exchangeName = meta.fullExchangeName || meta.exchangeName || "";
+
+    const isKrw = currency === "KRW";
+    const decimals = isKrw ? 0 : 2;
+
+    const arrow = change == null ? "" : change > 0 ? "▲" : change < 0 ? "▼" : "－";
+    const changeClass = change == null ? "flat" : change > 0 ? "up" : change < 0 ? "down" : "flat";
+
+    const signal = generateSignal(changePct ?? 0, current ?? 0, low52 ?? current ?? 0, high52 ?? current ?? 0);
+
+    modalSubtitle.textContent = `${ticker} · ${exchangeName}`;
+
+    modalBody.innerHTML = `
+      <div class="price-block">
+        <div class="price-label">오늘 종가 (또는 현재가)</div>
+        <div class="price-value">${formatNumber(current, { decimals })} ${currency}</div>
+        <div class="price-change ${changeClass}">
+          ${arrow} ${change == null ? "-" : formatNumber(Math.abs(change), { decimals })}
+          (${changePct == null ? "-" : (changePct >= 0 ? "+" : "") + changePct.toFixed(2) + "%"})
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">전일 종가</div>
+          <div class="info-value">${formatNumber(previousClose, { decimals })}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">당일 고가</div>
+          <div class="info-value">${formatNumber(dayHigh, { decimals })}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">당일 저가</div>
+          <div class="info-value">${formatNumber(dayLow, { decimals })}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">거래량</div>
+          <div class="info-value">${formatLarge(volume)}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">52주 최고</div>
+          <div class="info-value">${formatNumber(high52, { decimals })}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">52주 최저</div>
+          <div class="info-value">${formatNumber(low52, { decimals })}</div>
+        </div>
+      </div>
+
+      <div class="signal-box ${signal.kind}">
+        <div class="signal-title">투자 시그널 (단순 룰 기반)</div>
+        <div class="signal-label">${signal.label}</div>
+        <div class="signal-desc">${signal.desc}</div>
+      </div>
+
+      <div class="disclaimer">
+        ※ 본 정보는 Yahoo Finance 공개 데이터를 기반으로 한 참고용이며, 실시간성/정확성을 보장하지 않습니다.
+        투자 판단은 본인의 책임이며 본 페이지는 어떠한 종목도 추천하지 않습니다.
+      </div>
+    `;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  addBtn.addEventListener("click", addStock);
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") addStock();
+  });
+  modalClose.addEventListener("click", closeModal);
+  modalBackdrop.addEventListener("click", e => {
+    if (e.target === modalBackdrop) closeModal();
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && modalBackdrop.classList.contains("open")) closeModal();
+  });
+
+  render();
+</script>
+</body>
+</html>

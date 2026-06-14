@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Study-09 · 한눈에 보기 (AI 주식 · 주역선해 · 사후생)</title>
+<title>Study-09 · 한 페이지 요약 만들기</title>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 <style>
   * { box-sizing: border-box; }
   html, body {
@@ -15,14 +16,6 @@
     background: #0B1A33;
   }
   a { color: inherit; }
-
-  /* ───────── Shared section frame ───────── */
-  .slide {
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 48px 48px 40px;
-  }
-  .slide + .slide { border-top: 1px solid rgba(0,0,0,.05); }
 
   /* ───────── Top nav ───────── */
   .topbar {
@@ -44,7 +37,7 @@
     font-size: 13px;
   }
   .topbar-brand { font-weight: 700; letter-spacing: .02em; }
-  .topbar-links { margin-left: auto; display: flex; gap: 18px; }
+  .topbar-links { margin-left: auto; display: flex; gap: 18px; flex-wrap: wrap; }
   .topbar-links a {
     color: #B8C5DA;
     text-decoration: none;
@@ -53,7 +46,131 @@
   .topbar-links a:hover { color: #fff; }
 
   /* ════════════════════════════════════════════
-     SECTION 1 — AI 주식 트렌드 (dark navy + cyan)
+     CREATOR — form panel
+     ════════════════════════════════════════════ */
+  .creator {
+    background: linear-gradient(180deg, #0B1A33 0%, #122549 100%);
+    color: #fff;
+    padding: 48px 48px 56px;
+  }
+  .creator-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .creator h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  .creator .lede {
+    color: #B8C5DA;
+    font-size: 14px;
+    margin: 0 0 24px;
+  }
+  .creator form {
+    background: #17264A;
+    border: 1px solid #22324F;
+    border-radius: 10px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .creator .full { grid-column: 1 / -1; }
+  .creator label {
+    display: block;
+    font-size: 12px;
+    color: #8FA0BD;
+    margin: 0 0 6px;
+    letter-spacing: .02em;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .creator input[type="text"],
+  .creator textarea,
+  .creator select {
+    width: 100%;
+    background: #0B1A33;
+    border: 1px solid #2A3A5C;
+    border-radius: 6px;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    transition: border-color .15s;
+  }
+  .creator input[type="text"]:focus,
+  .creator textarea:focus,
+  .creator select:focus {
+    outline: none;
+    border-color: #22D3EE;
+  }
+  .creator textarea {
+    resize: vertical;
+    min-height: 72px;
+    line-height: 1.45;
+  }
+  .creator .card-fields {
+    background: #0F1F3E;
+    border: 1px solid #22324F;
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .creator .card-fields h3 {
+    margin: 0 0 10px;
+    font-size: 12px;
+    letter-spacing: .08em;
+    color: #22D3EE;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .creator .actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 4px;
+  }
+  .creator button {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 22px;
+    border-radius: 6px;
+    border: 0;
+    cursor: pointer;
+    transition: transform .08s, filter .15s;
+  }
+  .creator button:active { transform: translateY(1px); }
+  .creator .btn-primary {
+    background: #22D3EE;
+    color: #0B1A33;
+  }
+  .creator .btn-primary:hover { filter: brightness(1.1); }
+  .creator .btn-secondary {
+    background: transparent;
+    color: #B8C5DA;
+    border: 1px solid #2A3A5C;
+  }
+  .creator .btn-secondary:hover { background: #0B1A33; color: #fff; }
+  .creator .status {
+    font-size: 12.5px;
+    color: #8FA0BD;
+    align-self: center;
+  }
+  .creator .status.ok { color: #34D399; }
+  .creator .status.err { color: #F87171; }
+
+  /* ───────── Shared section frame ───────── */
+  .slide {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 48px 40px;
+  }
+
+  /* ════════════════════════════════════════════
+     SECTION 1 — AI 주식 트렌드
      ════════════════════════════════════════════ */
   .s-ai {
     --bg: #0B1A33;
@@ -127,12 +244,7 @@
     gap: 10px 14px;
   }
   .s-ai .ticker-grid .card { margin-bottom: 0; }
-  .s-ai .ticker-head {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 4px;
-  }
+  .s-ai .ticker-head { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; }
   .s-ai .ticker-sym { font-size: 15px; font-weight: 700; color: var(--text-primary); }
   .s-ai .ticker-arrow { font-size: 13px; font-weight: 700; }
   .s-ai .ticker-arrow.up { color: var(--up); }
@@ -149,54 +261,84 @@
   }
 
   /* ════════════════════════════════════════════
-     SECTION 2 — 탄허 주역선해 (hanji + ink + gold)
+     Hanji theme (used for Tanheo + new "hanji" generated)
      ════════════════════════════════════════════ */
-  .s-tanheo {
+  .s-hanji {
     --ink: #1A1F3A;
     --hanji: #F5EFE0;
     --gold: #C9A961;
     --gold-soft: #E8D9A6;
     --dark-text: #2A2A2A;
     --muted: #6B6357;
-    --card: #FFFFFF;
+    --card-bg: #FFFFFF;
     --card-line: #E8DFCB;
     background: var(--hanji);
     color: var(--dark-text);
-    padding: 0;
   }
-  .s-tanheo .header {
+
+  /* Twilight theme (Kübler-Ross + new "twilight" generated) */
+  .s-twilight {
+    --ink: #2D1B4E;
+    --hanji: #F6F1EA;
+    --gold: #D4A85A;
+    --gold-soft: #C8BDD8;
+    --dark-text: #2A2438;
+    --muted: #6E6379;
+    --card-bg: #FFFFFF;
+    --card-line: #E5DDE8;
+    background: var(--hanji);
+    color: var(--dark-text);
+  }
+
+  /* Dark-cyan theme (matches AI section, used for new "dark" generated) */
+  .s-dark {
+    --ink: #0B1A33;
+    --hanji: #17264A;
+    --gold: #22D3EE;
+    --gold-soft: #60A5FA;
+    --dark-text: #FFFFFF;
+    --muted: #8FA0BD;
+    --card-bg: #122549;
+    --card-line: #22324F;
+    background: var(--hanji);
+    color: var(--dark-text);
+  }
+
+  /* Shared layout for the 3 themed sections (hanji/twilight/dark) */
+  .summary-sheet .header {
     background: var(--ink);
     color: #fff;
     padding: 28px 48px 22px;
     position: relative;
   }
-  .s-tanheo .header::after {
+  .summary-sheet .header::after {
     content: "";
     position: absolute;
     left: 0; right: 0; bottom: 0;
     height: 5px;
     background: var(--gold);
   }
-  .s-tanheo .header-inner {
+  .summary-sheet .header-inner {
     max-width: 1180px;
     margin: 0 auto;
     display: flex;
     align-items: center;
     gap: 18px;
   }
-  .s-tanheo .header-text { flex: 1; }
-  .s-tanheo .title {
+  .summary-sheet .header-text { flex: 1; }
+  .summary-sheet .title {
     font-family: "Cambria", "Pretendard", serif;
     font-size: 28px;
     font-weight: 700;
     margin: 0 0 8px;
+    color: #fff;
   }
-  .s-tanheo .subtitle {
+  .summary-sheet .subtitle {
     font-size: 14px;
     color: var(--gold-soft);
     margin: 0;
   }
-  .s-tanheo .tag {
+  .summary-sheet .tag {
     background: var(--gold);
     color: var(--ink);
     font-family: "Cambria", serif;
@@ -205,8 +347,9 @@
     letter-spacing: 2px;
     padding: 8px 14px;
     border-radius: 6px;
+    white-space: nowrap;
   }
-  .s-tanheo .body {
+  .summary-sheet .body {
     max-width: 1180px;
     margin: 0 auto;
     padding: 36px 48px 16px;
@@ -214,23 +357,23 @@
     grid-template-columns: 1fr 1fr;
     gap: 16px;
   }
-  .s-tanheo .card {
+  .summary-sheet .body .card {
     position: relative;
-    background: var(--card);
+    background: var(--card-bg);
     border: 1px solid var(--card-line);
     border-radius: 4px;
     padding: 18px 20px 18px 30px;
     box-shadow: 0 1px 6px rgba(0,0,0,.06);
     overflow: hidden;
   }
-  .s-tanheo .card::before {
+  .summary-sheet .body .card::before {
     content: "";
     position: absolute;
     left: 0; top: 0; bottom: 0;
     width: 5px;
     background: var(--gold);
   }
-  .s-tanheo .card-head {
+  .summary-sheet .card-head {
     display: flex;
     align-items: baseline;
     gap: 14px;
@@ -238,187 +381,75 @@
     border-bottom: 1px solid var(--card-line);
     margin-bottom: 12px;
   }
-  .s-tanheo .num {
+  .summary-sheet .num {
     font-family: "Cambria", serif;
     font-size: 22px;
     font-weight: 700;
     color: var(--gold);
   }
-  .s-tanheo .card-title {
+  .summary-sheet .card-title {
     font-size: 15px;
     font-weight: 700;
     color: var(--ink);
   }
-  .s-tanheo ul {
+  .s-dark .summary-sheet .card-title,
+  .s-dark .card-title { color: #fff; }
+  .summary-sheet ul {
     margin: 0;
     padding-left: 18px;
     font-size: 13px;
     color: var(--dark-text);
   }
-  .s-tanheo ul li { margin-bottom: 6px; list-style: square; }
-  .s-tanheo ul li::marker { color: var(--gold); }
-  .s-tanheo .footer {
+  .summary-sheet ul li { margin-bottom: 6px; list-style: square; }
+  .summary-sheet ul li::marker { color: var(--gold); }
+  .summary-sheet .footer {
     max-width: 1180px;
-    margin: 0 auto;
+    margin: 10px auto 0;
     padding: 14px 48px 36px;
     border-top: 1px solid var(--gold);
-    margin-top: 10px;
     display: flex;
     justify-content: space-between;
     font-size: 11px;
     color: var(--muted);
   }
-  .s-tanheo .footer em {
+  .summary-sheet .footer em {
     font-family: "Cambria", serif;
     font-style: italic;
   }
 
-  /* ════════════════════════════════════════════
-     SECTION 3 — 퀴블러로스 사후생 (pearl + twilight + dawn)
-     ════════════════════════════════════════════ */
-  .s-kr {
-    --twilight: #2D1B4E;
-    --twilight-soft: #C8BDD8;
-    --pearl: #F6F1EA;
-    --dawn: #D4A85A;
-    --dark-text: #2A2438;
-    --muted: #6E6379;
-    --card: #FFFFFF;
-    --card-line: #E5DDE8;
-    background: var(--pearl);
-    color: var(--dark-text);
-    padding: 0;
-  }
-  .s-kr .header {
-    background: var(--twilight);
+  /* Download button inside a generated sheet header */
+  .summary-sheet .download-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.4);
     color: #fff;
-    padding: 28px 48px 22px;
-    position: relative;
-  }
-  .s-kr .header::after {
-    content: "";
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 5px;
-    background: var(--dawn);
-  }
-  .s-kr .header-inner {
-    max-width: 1180px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-  }
-  .s-kr .header-text { flex: 1; }
-  .s-kr .title {
-    font-family: "Cambria", "Pretendard", serif;
-    font-size: 26px;
-    font-weight: 700;
-    margin: 0 0 8px;
-  }
-  .s-kr .subtitle {
-    font-size: 14px;
-    color: var(--twilight-soft);
-    margin: 0;
-  }
-  .s-kr .tag {
-    background: var(--dawn);
-    color: var(--twilight);
-    font-family: "Cambria", serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
     padding: 8px 14px;
     border-radius: 6px;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: background .15s;
   }
-  .s-kr .body {
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 36px 48px 16px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .s-kr .card {
-    position: relative;
-    background: var(--card);
-    border: 1px solid var(--card-line);
-    border-radius: 4px;
-    padding: 18px 20px 18px 30px;
-    box-shadow: 0 1px 6px rgba(0,0,0,.06);
-    overflow: hidden;
-  }
-  .s-kr .card::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 5px;
-    background: var(--dawn);
-  }
-  .s-kr .card-head {
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--card-line);
-    margin-bottom: 12px;
-  }
-  .s-kr .num {
-    font-family: "Cambria", serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--dawn);
-  }
-  .s-kr .card-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--twilight);
-  }
-  .s-kr ul {
-    margin: 0;
-    padding-left: 18px;
-    font-size: 13px;
-    color: var(--dark-text);
-  }
-  .s-kr ul li { margin-bottom: 6px; list-style: square; }
-  .s-kr ul li::marker { color: var(--dawn); }
-  .s-kr .footer {
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 14px 48px 36px;
-    border-top: 1px solid var(--dawn);
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--muted);
-  }
-  .s-kr .footer em {
-    font-family: "Cambria", serif;
-    font-style: italic;
-  }
+  .summary-sheet .download-btn:hover { background: rgba(255,255,255,.12); }
 
   /* ───────── Responsive ───────── */
   @media (max-width: 760px) {
     .slide { padding: 28px 18px; }
-    .topbar-inner { padding: 12px 18px; gap: 12px; }
+    .topbar-inner, .creator { padding-left: 18px; padding-right: 18px; }
+    .creator form { grid-template-columns: 1fr; padding: 16px; }
+    .creator h1 { font-size: 22px; }
     .topbar-links { gap: 12px; font-size: 12px; }
     .s-ai .title { font-size: 24px; }
     .s-ai .grid,
     .s-ai .ticker-grid,
-    .s-tanheo .body,
-    .s-kr .body { grid-template-columns: 1fr; }
-    .s-tanheo .header,
-    .s-kr .header,
-    .s-tanheo .footer,
-    .s-kr .footer { padding-left: 18px; padding-right: 18px; }
-    .s-tanheo .header-inner,
-    .s-kr .header-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .s-tanheo .tag, .s-kr .tag { align-self: flex-start; }
-    .s-tanheo .footer,
-    .s-kr .footer { flex-direction: column; gap: 4px; }
-    .s-tanheo .title { font-size: 22px; }
-    .s-kr .title { font-size: 20px; }
+    .summary-sheet .body { grid-template-columns: 1fr; }
+    .summary-sheet .header,
+    .summary-sheet .footer { padding-left: 18px; padding-right: 18px; }
+    .summary-sheet .header-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .summary-sheet .tag { align-self: flex-start; }
+    .summary-sheet .footer { flex-direction: column; gap: 4px; }
+    .summary-sheet .title { font-size: 22px; }
   }
 </style>
 </head>
@@ -428,6 +459,8 @@
   <div class="topbar-inner">
     <span class="topbar-brand">Study-09 · Summary Sheets</span>
     <div class="topbar-links">
+      <a href="#creator">새로 만들기</a>
+      <a href="#generated">내 카드</a>
       <a href="#ai">AI 주식</a>
       <a href="#tanheo">주역선해</a>
       <a href="#kr">사후생</a>
@@ -435,7 +468,81 @@
   </div>
 </nav>
 
-<!-- ════════════════ SECTION 1 ════════════════ -->
+<!-- ════════════════ CREATOR ════════════════ -->
+<section id="creator" class="creator">
+  <div class="creator-inner">
+    <h1>인물 · 시사 한 페이지 요약 만들기</h1>
+    <p class="lede">제목과 4개 카드(소제목 + 핵심 3줄)를 입력하면 미리보기와 PPTX 파일을 만들어 드립니다.</p>
+    <form id="creator-form" autocomplete="off">
+      <div class="full">
+        <label for="f-title">제목 (인물명 또는 시사 주제) *</label>
+        <input id="f-title" name="title" type="text" placeholder="예: 일론 머스크, 한국 인구 절벽, 비트코인 ETF" required />
+      </div>
+      <div class="full">
+        <label for="f-subtitle">부제 (한 줄 설명)</label>
+        <input id="f-subtitle" name="subtitle" type="text" placeholder="예: 화성 이주를 외치는 시대의 기업가" />
+      </div>
+
+      <div class="card-fields">
+        <h3>카드 01</h3>
+        <label for="c1-t">소제목</label>
+        <input id="c1-t" type="text" placeholder="예: 인물 소개" />
+        <label for="c1-b" style="margin-top:10px">3줄 핵심 (줄바꿈으로 구분)</label>
+        <textarea id="c1-b" placeholder="첫째 줄&#10;둘째 줄&#10;셋째 줄"></textarea>
+      </div>
+
+      <div class="card-fields">
+        <h3>카드 02</h3>
+        <label for="c2-t">소제목</label>
+        <input id="c2-t" type="text" placeholder="예: 배경 · 맥락" />
+        <label for="c2-b" style="margin-top:10px">3줄 핵심</label>
+        <textarea id="c2-b"></textarea>
+      </div>
+
+      <div class="card-fields">
+        <h3>카드 03</h3>
+        <label for="c3-t">소제목</label>
+        <input id="c3-t" type="text" placeholder="예: 핵심 사상 · 핵심 쟁점" />
+        <label for="c3-b" style="margin-top:10px">3줄 핵심</label>
+        <textarea id="c3-b"></textarea>
+      </div>
+
+      <div class="card-fields">
+        <h3>카드 04</h3>
+        <label for="c4-t">소제목</label>
+        <input id="c4-t" type="text" placeholder="예: 의의 · 시사점" />
+        <label for="c4-b" style="margin-top:10px">3줄 핵심</label>
+        <textarea id="c4-b"></textarea>
+      </div>
+
+      <div>
+        <label for="f-theme">테마</label>
+        <select id="f-theme">
+          <option value="hanji">한지 · 골드 (전통/인문)</option>
+          <option value="twilight">트와일라잇 · 던 (영성/철학)</option>
+          <option value="dark">다크 · 시안 (기술/시사)</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="f-footer">푸터 (출처/날짜)</label>
+        <input id="f-footer" type="text" placeholder="예: 작성일 2026-06-14 · 일반 지식 요약" />
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-primary" id="btn-preview">미리보기 만들기</button>
+        <button type="button" class="btn-secondary" id="btn-download" disabled>PPTX 다운로드</button>
+        <button type="button" class="btn-secondary" id="btn-sample">예시 채우기</button>
+        <span class="status" id="status"></span>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ════════════════ Generated sheets land here ════════════════ -->
+<div id="generated"></div>
+
+<!-- ════════════════ SECTION: AI 주식 트렌드 ════════════════ -->
 <section id="ai" class="slide s-ai">
   <h1 class="title">AI 기술 주가 트렌드 — 한눈에 보기</h1>
   <p class="subtitle">반도체·하이퍼스케일러를 중심으로 한 AI 수혜주 흐름과 핵심 인사이트</p>
@@ -443,22 +550,18 @@
   <div class="grid">
     <div>
       <h2 class="section-title">핵심 트렌드</h2>
-
       <article class="card">
         <p class="card-title">반도체가 주도</p>
         <p class="card-body">NVDA·AMD·TSM이 AI 칩·HBM 수요를 견인하며 상승 사이클 지속.</p>
       </article>
-
       <article class="card">
         <p class="card-title">빅테크 CapEx 확장</p>
         <p class="card-body">MSFT·GOOGL·AMZN·META의 클라우드 인프라 투자 가속, 실적 모멘텀 견인.</p>
       </article>
-
       <article class="card">
         <p class="card-title">밸류에이션 변동성</p>
         <p class="card-body">고점 부담과 차익 실현 매물로 단기 변동성 확대 — 종목 차별화 심화.</p>
       </article>
-
       <article class="card">
         <p class="card-title">공급망 수혜 확산</p>
         <p class="card-body">파운드리·HBM·전력·냉각 인프라까지 AI 수혜 종목군 전방위 확장.</p>
@@ -468,50 +571,25 @@
     <div>
       <h2 class="section-title">대표 종목 한눈에 보기</h2>
       <div class="ticker-grid">
-        <article class="card up">
-          <div class="ticker-head"><span class="ticker-sym">NVDA</span><span class="ticker-arrow up">▲</span></div>
-          <p class="card-body">AI GPU 독주, 변동성 확대</p>
-        </article>
-        <article class="card up">
-          <div class="ticker-head"><span class="ticker-sym">MSFT</span><span class="ticker-arrow up">▲</span></div>
-          <p class="card-body">Azure AI 견조, 안정 상승</p>
-        </article>
-        <article class="card up">
-          <div class="ticker-head"><span class="ticker-sym">GOOGL</span><span class="ticker-arrow up">▲</span></div>
-          <p class="card-body">Gemini·클라우드 동반 강세</p>
-        </article>
-        <article class="card up">
-          <div class="ticker-head"><span class="ticker-sym">META</span><span class="ticker-arrow up">▲</span></div>
-          <p class="card-body">AI 광고 효율 + 인프라 확장</p>
-        </article>
-        <article class="card up">
-          <div class="ticker-head"><span class="ticker-sym">AMZN</span><span class="ticker-arrow up">▲</span></div>
-          <p class="card-body">AWS AI 워크로드 확대</p>
-        </article>
-        <article class="card vol">
-          <div class="ticker-head"><span class="ticker-sym">AMD</span><span class="ticker-arrow vol">◆</span></div>
-          <p class="card-body">MI 시리즈 대안 수요, 변동성↑</p>
-        </article>
-        <article class="card up">
-          <div class="ticker-head"><span class="ticker-sym">TSM</span><span class="ticker-arrow up">▲</span></div>
-          <p class="card-body">첨단 파운드리 수요 폭증</p>
-        </article>
+        <article class="card up"><div class="ticker-head"><span class="ticker-sym">NVDA</span><span class="ticker-arrow up">▲</span></div><p class="card-body">AI GPU 독주, 변동성 확대</p></article>
+        <article class="card up"><div class="ticker-head"><span class="ticker-sym">MSFT</span><span class="ticker-arrow up">▲</span></div><p class="card-body">Azure AI 견조, 안정 상승</p></article>
+        <article class="card up"><div class="ticker-head"><span class="ticker-sym">GOOGL</span><span class="ticker-arrow up">▲</span></div><p class="card-body">Gemini·클라우드 동반 강세</p></article>
+        <article class="card up"><div class="ticker-head"><span class="ticker-sym">META</span><span class="ticker-arrow up">▲</span></div><p class="card-body">AI 광고 효율 + 인프라 확장</p></article>
+        <article class="card up"><div class="ticker-head"><span class="ticker-sym">AMZN</span><span class="ticker-arrow up">▲</span></div><p class="card-body">AWS AI 워크로드 확대</p></article>
+        <article class="card vol"><div class="ticker-head"><span class="ticker-sym">AMD</span><span class="ticker-arrow vol">◆</span></div><p class="card-body">MI 시리즈 대안 수요, 변동성↑</p></article>
+        <article class="card up"><div class="ticker-head"><span class="ticker-sym">TSM</span><span class="ticker-arrow up">▲</span></div><p class="card-body">첨단 파운드리 수요 폭증</p></article>
         <article class="card legend">
           <p class="card-title">범례</p>
-          <p class="legend-row">
-            <span class="up-mark">▲</span> 상승 추세
-            <span class="vol-mark">◆</span> 변동성 우위
-          </p>
+          <p class="legend-row"><span class="up-mark">▲</span> 상승 추세 <span class="vol-mark">◆</span> 변동성 우위</p>
         </article>
       </div>
     </div>
   </div>
-
   <p class="footer">작성일 2026-06-12 · 일반 지식 기반 정성 요약 · 투자 권유 아님</p>
 </section>
 
-<!-- ════════════════ SECTION 2 ════════════════ -->
-<section id="tanheo" class="s-tanheo">
+<!-- ════════════════ SECTION: 탄허 ════════════════ -->
+<section id="tanheo" class="summary-sheet s-hanji">
   <div class="header">
     <div class="header-inner">
       <div class="header-text">
@@ -521,49 +599,33 @@
       <span class="tag">1-PAGE SUMMARY</span>
     </div>
   </div>
-
   <div class="body">
     <article class="card">
-      <div class="card-head">
-        <span class="num">01</span>
-        <span class="card-title">저자 — 탄허 택성(呑虛 宅成)</span>
-      </div>
+      <div class="card-head"><span class="num">01</span><span class="card-title">저자 — 탄허 택성(呑虛 宅成)</span></div>
       <ul>
         <li>1913 ~ 1983. 한국 근현대 대표 학승</li>
         <li>월정사 방장, 화엄경·신화엄경합론 역경</li>
         <li>유·불·선 3교에 두루 통한 한문 석학</li>
       </ul>
     </article>
-
     <article class="card">
-      <div class="card-head">
-        <span class="num">02</span>
-        <span class="card-title">저서 배경</span>
-      </div>
+      <div class="card-head"><span class="num">02</span><span class="card-title">저서 배경</span></div>
       <ul>
         <li>明末 우익지욱(蕅益智旭, 1599~1655)의 『주역선해』 한글 역해</li>
         <li>원전 한문에 음·훈을 달고 선적 풀이 부연</li>
         <li>1982년 화엄학연구소를 통해 간행</li>
       </ul>
     </article>
-
     <article class="card">
-      <div class="card-head">
-        <span class="num">03</span>
-        <span class="card-title">핵심 사상</span>
-      </div>
+      <div class="card-head"><span class="num">03</span><span class="card-title">핵심 사상</span></div>
       <ul>
         <li>64괘 384효를 선(禪)의 안목으로 재해석</li>
         <li>음양의 변화 = 일심(一心)의 작용·인연 생멸</li>
         <li>유교의 의리, 도가의 무위, 불교의 공(空)을 회통</li>
       </ul>
     </article>
-
     <article class="card">
-      <div class="card-head">
-        <span class="num">04</span>
-        <span class="card-title">의의 — 왜 읽는가</span>
-      </div>
+      <div class="card-head"><span class="num">04</span><span class="card-title">의의 — 왜 읽는가</span></div>
       <ul>
         <li>주역을 점서(占書)가 아닌 수행서(修行書)로 자리매김</li>
         <li>동아시아 사상 통섭의 한국적 모범</li>
@@ -571,15 +633,14 @@
       </ul>
     </article>
   </div>
-
   <div class="footer">
     <span>呑虛 宅成 (1913–1983) · 『周易禪解』 한글 역해 · 화엄학연구소, 1982</span>
     <em>Study-09 · Summary Sheet</em>
   </div>
 </section>
 
-<!-- ════════════════ SECTION 3 ════════════════ -->
-<section id="kr" class="s-kr">
+<!-- ════════════════ SECTION: 퀴블러로스 ════════════════ -->
+<section id="kr" class="summary-sheet s-twilight">
   <div class="header">
     <div class="header-inner">
       <div class="header-text">
@@ -589,49 +650,33 @@
       <span class="tag">1-PAGE SUMMARY</span>
     </div>
   </div>
-
   <div class="body">
     <article class="card">
-      <div class="card-head">
-        <span class="num">01</span>
-        <span class="card-title">저자 — Elisabeth Kübler-Ross</span>
-      </div>
+      <div class="card-head"><span class="num">01</span><span class="card-title">저자 — Elisabeth Kübler-Ross</span></div>
       <ul>
         <li>1926~2004. 스위스 출신 미국 정신과 의사</li>
         <li>죽음학·호스피스 운동의 개척자</li>
         <li>임종 5단계(부정·분노·타협·우울·수용) 모델 제시</li>
       </ul>
     </article>
-
     <article class="card">
-      <div class="card-head">
-        <span class="num">02</span>
-        <span class="card-title">저서 배경</span>
-      </div>
+      <div class="card-head"><span class="num">02</span><span class="card-title">저서 배경</span></div>
       <ul>
         <li>원제 『On Life after Death』, 1991년 출간</li>
         <li>임종 환자·NDE 사례 2만여 명 면담 정리</li>
         <li>『죽음과 죽어감』(1969) 5단계 이론의 후속편</li>
       </ul>
     </article>
-
     <article class="card">
-      <div class="card-head">
-        <span class="num">03</span>
-        <span class="card-title">죽음 이후 — 네 단계</span>
-      </div>
+      <div class="card-head"><span class="num">03</span><span class="card-title">죽음 이후 — 네 단계</span></div>
       <ul>
         <li>1단계 · 육체 이탈 (나비가 고치를 벗듯)</li>
         <li>2~3단계 · 사랑한 이·빛의 안내자와 재회</li>
         <li>4단계 · 빛의 근원 귀환, 일생 파노라마 회고</li>
       </ul>
     </article>
-
     <article class="card">
-      <div class="card-head">
-        <span class="num">04</span>
-        <span class="card-title">핵심 메시지 · 의의</span>
-      </div>
+      <div class="card-head"><span class="num">04</span><span class="card-title">핵심 메시지 · 의의</span></div>
       <ul>
         <li>죽음 = 종말이 아닌 다른 차원으로의 변환</li>
         <li>삶의 궁극 과제 — 무조건적 사랑</li>
@@ -639,12 +684,270 @@
       </ul>
     </article>
   </div>
-
   <div class="footer">
     <span>Elisabeth Kübler-Ross (1926–2004) · 『On Life after Death』, 1991</span>
     <em>Study-09 · Summary Sheet</em>
   </div>
 </section>
+
+<script>
+(function () {
+  const THEMES = {
+    hanji: {
+      label: "한지 · 골드",
+      ink: "1A1F3A", paper: "F5EFE0", gold: "C9A961", goldSoft: "E8D9A6",
+      darkText: "2A2A2A", muted: "6B6357", card: "FFFFFF", cardLine: "E8DFCB",
+      cssClass: "s-hanji",
+    },
+    twilight: {
+      label: "트와일라잇 · 던",
+      ink: "2D1B4E", paper: "F6F1EA", gold: "D4A85A", goldSoft: "C8BDD8",
+      darkText: "2A2438", muted: "6E6379", card: "FFFFFF", cardLine: "E5DDE8",
+      cssClass: "s-twilight",
+    },
+    dark: {
+      label: "다크 · 시안",
+      ink: "0B1A33", paper: "17264A", gold: "22D3EE", goldSoft: "60A5FA",
+      darkText: "FFFFFF", muted: "8FA0BD", card: "122549", cardLine: "22324F",
+      cssClass: "s-dark",
+    },
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const generated = $("generated");
+  const status = $("status");
+
+  function setStatus(msg, kind) {
+    status.textContent = msg || "";
+    status.className = "status" + (kind ? " " + kind : "");
+  }
+
+  function readForm() {
+    const title = $("f-title").value.trim();
+    if (!title) {
+      setStatus("제목을 입력해 주세요.", "err");
+      $("f-title").focus();
+      return null;
+    }
+    const cards = [1, 2, 3, 4].map((i) => {
+      const t = $("c" + i + "-t").value.trim();
+      const lines = $("c" + i + "-b").value
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      return { num: String(i).padStart(2, "0"), title: t, bullets: lines };
+    });
+    return {
+      title,
+      subtitle: $("f-subtitle").value.trim(),
+      footer: $("f-footer").value.trim(),
+      theme: $("f-theme").value,
+      cards,
+    };
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    }[c]));
+  }
+
+  function renderSheet(data) {
+    const theme = THEMES[data.theme] || THEMES.hanji;
+    const id = "sheet-" + Date.now();
+    const cardsHtml = data.cards.map((c) => `
+      <article class="card">
+        <div class="card-head">
+          <span class="num">${escapeHtml(c.num)}</span>
+          <span class="card-title">${escapeHtml(c.title || "—")}</span>
+        </div>
+        <ul>
+          ${(c.bullets.length ? c.bullets : ["—"]).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}
+        </ul>
+      </article>
+    `).join("");
+
+    const wrap = document.createElement("section");
+    wrap.className = "summary-sheet " + theme.cssClass;
+    wrap.id = id;
+    wrap.innerHTML = `
+      <div class="header">
+        <div class="header-inner">
+          <div class="header-text">
+            <h2 class="title">${escapeHtml(data.title)}</h2>
+            ${data.subtitle ? `<p class="subtitle">${escapeHtml(data.subtitle)}</p>` : ""}
+          </div>
+          <span class="tag">1-PAGE SUMMARY</span>
+          <button type="button" class="download-btn" data-sheet="${id}">PPTX 다운로드</button>
+        </div>
+      </div>
+      <div class="body">${cardsHtml}</div>
+      <div class="footer">
+        <span>${escapeHtml(data.footer || "Study-09 · 사용자 입력 요약")}</span>
+        <em>Study-09 · Summary Sheet</em>
+      </div>
+    `;
+    generated.insertBefore(wrap, generated.firstChild);
+    wrap.querySelector(".download-btn").addEventListener("click", () => buildPptx(data));
+    wrap.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function buildPptx(data) {
+    if (typeof PptxGenJS === "undefined") {
+      setStatus("PPTX 라이브러리 로드 실패. 새로고침 후 다시 시도해 주세요.", "err");
+      return;
+    }
+    const theme = THEMES[data.theme] || THEMES.hanji;
+    const pres = new PptxGenJS();
+    pres.layout = "LAYOUT_16x9";
+    pres.title = data.title;
+    pres.author = "Study-09";
+
+    const slide = pres.addSlide();
+    slide.background = { color: theme.paper };
+
+    slide.addShape(pres.shapes.RECTANGLE, {
+      x: 0, y: 0, w: 10, h: 1.25,
+      fill: { color: theme.ink }, line: { color: theme.ink, width: 0 },
+    });
+    slide.addShape(pres.shapes.RECTANGLE, {
+      x: 0, y: 1.25, w: 10, h: 0.06,
+      fill: { color: theme.gold }, line: { color: theme.gold, width: 0 },
+    });
+
+    slide.addText(data.title, {
+      x: 0.5, y: 0.18, w: 9, h: 0.6,
+      fontFace: "맑은 고딕", fontSize: 26, bold: true,
+      color: "FFFFFF", margin: 0, valign: "middle", align: "left",
+    });
+    if (data.subtitle) {
+      slide.addText(data.subtitle, {
+        x: 0.5, y: 0.72, w: 9, h: 0.42,
+        fontFace: "맑은 고딕", fontSize: 13,
+        color: theme.goldSoft, margin: 0, valign: "middle", align: "left",
+      });
+    }
+
+    slide.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+      x: 8.2, y: 0.32, w: 1.5, h: 0.42,
+      fill: { color: theme.gold }, line: { color: theme.gold, width: 0 },
+      rectRadius: 0.06,
+    });
+    slide.addText("1-PAGE SUMMARY", {
+      x: 8.2, y: 0.32, w: 1.5, h: 0.42,
+      fontFace: "Cambria", fontSize: 9, bold: true, charSpacing: 2,
+      color: theme.ink, margin: 0, align: "center", valign: "middle",
+    });
+
+    const CARD_TOP = 1.55, CARD_LEFT = 0.45;
+    const CARD_W = 4.5, CARD_H = 1.78;
+    const COL_GAP = 0.1, ROW_GAP = 0.12;
+
+    data.cards.forEach((card, idx) => {
+      const col = idx % 2;
+      const row = Math.floor(idx / 2);
+      const x = CARD_LEFT + col * (CARD_W + COL_GAP);
+      const y = CARD_TOP + row * (CARD_H + ROW_GAP);
+
+      slide.addShape(pres.shapes.RECTANGLE, {
+        x, y, w: CARD_W, h: CARD_H,
+        fill: { color: theme.card },
+        line: { color: theme.cardLine, width: 0.75 },
+        shadow: { type: "outer", color: "000000", blur: 6, offset: 1, angle: 90, opacity: 0.08 },
+      });
+      slide.addShape(pres.shapes.RECTANGLE, {
+        x, y, w: 0.07, h: CARD_H,
+        fill: { color: theme.gold }, line: { color: theme.gold, width: 0 },
+      });
+
+      slide.addText(card.num, {
+        x: x + 0.22, y: y + 0.12, w: 0.55, h: 0.42,
+        fontFace: "Cambria", fontSize: 22, bold: true,
+        color: theme.gold, margin: 0, valign: "top", align: "left",
+      });
+      slide.addText(card.title || "—", {
+        x: x + 0.78, y: y + 0.14, w: CARD_W - 0.95, h: 0.4,
+        fontFace: "맑은 고딕", fontSize: 14, bold: true,
+        color: theme.darkText, margin: 0, valign: "middle", align: "left",
+      });
+      slide.addShape(pres.shapes.LINE, {
+        x: x + 0.22, y: y + 0.6, w: CARD_W - 0.4, h: 0,
+        line: { color: theme.cardLine, width: 0.75 },
+      });
+
+      const bullets = card.bullets.length ? card.bullets : ["—"];
+      const runs = bullets.map((t, i) => ({
+        text: t,
+        options: {
+          bullet: { code: "25A0" },
+          breakLine: i < bullets.length - 1,
+          paraSpaceAfter: 4,
+        },
+      }));
+      slide.addText(runs, {
+        x: x + 0.22, y: y + 0.68, w: CARD_W - 0.4, h: CARD_H - 0.78,
+        fontFace: "맑은 고딕", fontSize: 11.5,
+        color: theme.darkText, valign: "top", align: "left",
+        paraSpaceAfter: 4,
+      });
+    });
+
+    slide.addShape(pres.shapes.LINE, {
+      x: 0.45, y: 5.3, w: 9.1, h: 0,
+      line: { color: theme.gold, width: 0.75 },
+    });
+    slide.addText(data.footer || "Study-09 · 사용자 입력 요약", {
+      x: 0.45, y: 5.34, w: 6.5, h: 0.28,
+      fontFace: "맑은 고딕", fontSize: 9,
+      color: theme.muted, margin: 0, valign: "middle", align: "left",
+    });
+    slide.addText("Study-09 · Summary Sheet", {
+      x: 6.95, y: 5.34, w: 2.6, h: 0.28,
+      fontFace: "Cambria", fontSize: 9, italic: true,
+      color: theme.muted, margin: 0, valign: "middle", align: "right",
+    });
+
+    const safe = (data.title || "summary").replace(/[\\/:*?"<>|]+/g, "_").slice(0, 40);
+    pres.writeFile({ fileName: safe + ".pptx" })
+      .then(() => setStatus("PPTX 파일이 다운로드되었습니다.", "ok"))
+      .catch((e) => setStatus("PPTX 생성 실패: " + e.message, "err"));
+  }
+
+  $("btn-preview").addEventListener("click", () => {
+    const data = readForm();
+    if (!data) return;
+    renderSheet(data);
+    $("btn-download").disabled = false;
+    setStatus("미리보기를 만들었습니다. 같은 입력으로 PPTX를 받으려면 ‘PPTX 다운로드’를 누르세요.", "ok");
+  });
+
+  $("btn-download").addEventListener("click", () => {
+    const data = readForm();
+    if (!data) return;
+    buildPptx(data);
+  });
+
+  $("btn-sample").addEventListener("click", () => {
+    $("f-title").value = "일론 머스크";
+    $("f-subtitle").value = "전기차 · 우주 · AI를 묶어 21세기를 재정의한 기업가";
+    $("f-theme").value = "dark";
+    $("f-footer").value = "작성일 2026-06-14 · 일반 지식 기반 요약";
+
+    $("c1-t").value = "인물 소개";
+    $("c1-b").value = "1971년 남아공 프리토리아 출생\nPayPal 매각 후 Tesla·SpaceX 창업\nX·xAI까지 다영역 동시 운영";
+
+    $("c2-t").value = "사업 영역";
+    $("c2-b").value = "Tesla — 전기차·자율주행·에너지\nSpaceX — 재사용 로켓·Starlink\nxAI — 범용 AI 모델 Grok 시리즈";
+
+    $("c3-t").value = "철학 · 비전";
+    $("c3-b").value = "다행성 종족화 — 화성 정착 목표\n에너지 전환 · AI 안전 강조\n1차 원리(First Principles) 사고";
+
+    $("c4-t").value = "논란 · 시사점";
+    $("c4-b").value = "X 인수 후 콘텐츠 정책 논쟁\n노동 관행 · 공급망 리스크\n기술 발전과 사회적 책임의 시험대";
+    setStatus("예시를 채웠습니다. ‘미리보기 만들기’를 눌러 확인하세요.", "ok");
+  });
+})();
+</script>
 
 </body>
 </html>

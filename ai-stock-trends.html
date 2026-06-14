@@ -3,58 +3,95 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AI 기술 주가 트렌드 — 한눈에 보기</title>
+<title>Study-09 · 한눈에 보기 (AI 주식 · 주역선해 · 사후생)</title>
 <style>
-  :root {
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Pretendard", "Apple SD Gothic Neo", "맑은 고딕", "Malgun Gothic", "Calibri", sans-serif;
+    line-height: 1.5;
+    color: #111;
+    background: #0B1A33;
+  }
+  a { color: inherit; }
+
+  /* ───────── Shared section frame ───────── */
+  .slide {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 48px 40px;
+  }
+  .slide + .slide { border-top: 1px solid rgba(0,0,0,.05); }
+
+  /* ───────── Top nav ───────── */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(11, 26, 51, 0.92);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .topbar-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 13px;
+  }
+  .topbar-brand { font-weight: 700; letter-spacing: .02em; }
+  .topbar-links { margin-left: auto; display: flex; gap: 18px; }
+  .topbar-links a {
+    color: #B8C5DA;
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .topbar-links a:hover { color: #fff; }
+
+  /* ════════════════════════════════════════════
+     SECTION 1 — AI 주식 트렌드 (dark navy + cyan)
+     ════════════════════════════════════════════ */
+  .s-ai {
     --bg: #0B1A33;
     --card: #17264A;
     --card-line: #22324F;
     --accent: #22D3EE;
     --accent-soft: #60A5FA;
     --up: #34D399;
-    --up-strong: #10B981;
     --vol: #F59E0B;
     --text-primary: #FFFFFF;
     --text-secondary: #B8C5DA;
     --text-muted: #7B8AA8;
-  }
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0;
-    padding: 0;
     background: var(--bg);
     color: var(--text-primary);
-    font-family: "Calibri", "Pretendard", "Apple SD Gothic Neo", "맑은 고딕", sans-serif;
-    line-height: 1.5;
   }
-  .slide {
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 40px 48px 32px;
-  }
-  .title {
+  .s-ai .title {
     font-size: 32px;
     font-weight: 700;
     margin: 0 0 8px;
     letter-spacing: -0.02em;
   }
-  .subtitle {
+  .s-ai .subtitle {
     font-size: 15px;
     color: var(--text-secondary);
     margin: 0 0 28px;
   }
-  .grid {
+  .s-ai .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 28px;
   }
-  .section-title {
+  .s-ai .section-title {
     font-size: 17px;
     font-weight: 700;
     color: var(--accent);
     margin: 0 0 14px;
   }
-  .card {
+  .s-ai .card {
     position: relative;
     background: var(--card);
     border: 1px solid var(--card-line);
@@ -63,173 +100,551 @@
     margin-bottom: 10px;
     overflow: hidden;
   }
-  .card::before {
+  .s-ai .card::before {
     content: "";
     position: absolute;
     left: 0; top: 0; bottom: 0;
     width: 5px;
     background: var(--accent);
   }
-  .card.up::before { background: var(--up); }
-  .card.vol::before { background: var(--vol); }
-  .card.legend::before { background: var(--accent-soft); }
-  .card-title {
+  .s-ai .card.up::before { background: var(--up); }
+  .s-ai .card.vol::before { background: var(--vol); }
+  .s-ai .card.legend::before { background: var(--accent-soft); }
+  .s-ai .card-title {
     font-size: 14.5px;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 4px;
   }
-  .card-body {
+  .s-ai .card-body {
     font-size: 12.5px;
     color: var(--text-secondary);
     margin: 0;
   }
-  .ticker-grid {
+  .s-ai .ticker-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px 14px;
   }
-  .ticker-grid .card { margin-bottom: 0; }
-  .ticker-head {
+  .s-ai .ticker-grid .card { margin-bottom: 0; }
+  .s-ai .ticker-head {
     display: flex;
     align-items: center;
     gap: 8px;
     margin: 0 0 4px;
   }
-  .ticker-sym {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-  .ticker-arrow {
-    font-size: 13px;
-    font-weight: 700;
-  }
-  .ticker-arrow.up { color: var(--up); }
-  .ticker-arrow.vol { color: var(--vol); }
-  .legend-row {
-    font-size: 12.5px;
-    color: var(--text-secondary);
-  }
-  .legend-row .up-mark { color: var(--up); font-weight: 700; }
-  .legend-row .vol-mark { color: var(--vol); font-weight: 700; margin-left: 12px; }
-  .footer {
+  .s-ai .ticker-sym { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .s-ai .ticker-arrow { font-size: 13px; font-weight: 700; }
+  .s-ai .ticker-arrow.up { color: var(--up); }
+  .s-ai .ticker-arrow.vol { color: var(--vol); }
+  .s-ai .legend-row { font-size: 12.5px; color: var(--text-secondary); }
+  .s-ai .legend-row .up-mark { color: var(--up); font-weight: 700; }
+  .s-ai .legend-row .vol-mark { color: var(--vol); font-weight: 700; margin-left: 12px; }
+  .s-ai .footer {
     margin-top: 28px;
     padding-top: 14px;
     border-top: 1px solid rgba(184, 197, 218, 0.08);
     font-size: 11.5px;
     color: var(--text-muted);
   }
+
+  /* ════════════════════════════════════════════
+     SECTION 2 — 탄허 주역선해 (hanji + ink + gold)
+     ════════════════════════════════════════════ */
+  .s-tanheo {
+    --ink: #1A1F3A;
+    --hanji: #F5EFE0;
+    --gold: #C9A961;
+    --gold-soft: #E8D9A6;
+    --dark-text: #2A2A2A;
+    --muted: #6B6357;
+    --card: #FFFFFF;
+    --card-line: #E8DFCB;
+    background: var(--hanji);
+    color: var(--dark-text);
+    padding: 0;
+  }
+  .s-tanheo .header {
+    background: var(--ink);
+    color: #fff;
+    padding: 28px 48px 22px;
+    position: relative;
+  }
+  .s-tanheo .header::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 5px;
+    background: var(--gold);
+  }
+  .s-tanheo .header-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .s-tanheo .header-text { flex: 1; }
+  .s-tanheo .title {
+    font-family: "Cambria", "Pretendard", serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+  .s-tanheo .subtitle {
+    font-size: 14px;
+    color: var(--gold-soft);
+    margin: 0;
+  }
+  .s-tanheo .tag {
+    background: var(--gold);
+    color: var(--ink);
+    font-family: "Cambria", serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 8px 14px;
+    border-radius: 6px;
+  }
+  .s-tanheo .body {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 36px 48px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .s-tanheo .card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 4px;
+    padding: 18px 20px 18px 30px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.06);
+    overflow: hidden;
+  }
+  .s-tanheo .card::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 5px;
+    background: var(--gold);
+  }
+  .s-tanheo .card-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--card-line);
+    margin-bottom: 12px;
+  }
+  .s-tanheo .num {
+    font-family: "Cambria", serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .s-tanheo .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .s-tanheo ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--dark-text);
+  }
+  .s-tanheo ul li { margin-bottom: 6px; list-style: square; }
+  .s-tanheo ul li::marker { color: var(--gold); }
+  .s-tanheo .footer {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 14px 48px 36px;
+    border-top: 1px solid var(--gold);
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .s-tanheo .footer em {
+    font-family: "Cambria", serif;
+    font-style: italic;
+  }
+
+  /* ════════════════════════════════════════════
+     SECTION 3 — 퀴블러로스 사후생 (pearl + twilight + dawn)
+     ════════════════════════════════════════════ */
+  .s-kr {
+    --twilight: #2D1B4E;
+    --twilight-soft: #C8BDD8;
+    --pearl: #F6F1EA;
+    --dawn: #D4A85A;
+    --dark-text: #2A2438;
+    --muted: #6E6379;
+    --card: #FFFFFF;
+    --card-line: #E5DDE8;
+    background: var(--pearl);
+    color: var(--dark-text);
+    padding: 0;
+  }
+  .s-kr .header {
+    background: var(--twilight);
+    color: #fff;
+    padding: 28px 48px 22px;
+    position: relative;
+  }
+  .s-kr .header::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 5px;
+    background: var(--dawn);
+  }
+  .s-kr .header-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .s-kr .header-text { flex: 1; }
+  .s-kr .title {
+    font-family: "Cambria", "Pretendard", serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+  .s-kr .subtitle {
+    font-size: 14px;
+    color: var(--twilight-soft);
+    margin: 0;
+  }
+  .s-kr .tag {
+    background: var(--dawn);
+    color: var(--twilight);
+    font-family: "Cambria", serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 8px 14px;
+    border-radius: 6px;
+  }
+  .s-kr .body {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 36px 48px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .s-kr .card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 4px;
+    padding: 18px 20px 18px 30px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.06);
+    overflow: hidden;
+  }
+  .s-kr .card::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 5px;
+    background: var(--dawn);
+  }
+  .s-kr .card-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--card-line);
+    margin-bottom: 12px;
+  }
+  .s-kr .num {
+    font-family: "Cambria", serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dawn);
+  }
+  .s-kr .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--twilight);
+  }
+  .s-kr ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--dark-text);
+  }
+  .s-kr ul li { margin-bottom: 6px; list-style: square; }
+  .s-kr ul li::marker { color: var(--dawn); }
+  .s-kr .footer {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 14px 48px 36px;
+    border-top: 1px solid var(--dawn);
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .s-kr .footer em {
+    font-family: "Cambria", serif;
+    font-style: italic;
+  }
+
+  /* ───────── Responsive ───────── */
   @media (max-width: 760px) {
-    .slide { padding: 24px 18px; }
-    .title { font-size: 24px; }
-    .grid { grid-template-columns: 1fr; gap: 18px; }
-    .ticker-grid { grid-template-columns: 1fr; }
+    .slide { padding: 28px 18px; }
+    .topbar-inner { padding: 12px 18px; gap: 12px; }
+    .topbar-links { gap: 12px; font-size: 12px; }
+    .s-ai .title { font-size: 24px; }
+    .s-ai .grid,
+    .s-ai .ticker-grid,
+    .s-tanheo .body,
+    .s-kr .body { grid-template-columns: 1fr; }
+    .s-tanheo .header,
+    .s-kr .header,
+    .s-tanheo .footer,
+    .s-kr .footer { padding-left: 18px; padding-right: 18px; }
+    .s-tanheo .header-inner,
+    .s-kr .header-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .s-tanheo .tag, .s-kr .tag { align-self: flex-start; }
+    .s-tanheo .footer,
+    .s-kr .footer { flex-direction: column; gap: 4px; }
+    .s-tanheo .title { font-size: 22px; }
+    .s-kr .title { font-size: 20px; }
   }
 </style>
 </head>
 <body>
-  <main class="slide">
-    <h1 class="title">AI 기술 주가 트렌드 — 한눈에 보기</h1>
-    <p class="subtitle">반도체·하이퍼스케일러를 중심으로 한 AI 수혜주 흐름과 핵심 인사이트</p>
 
-    <div class="grid">
-      <section>
-        <h2 class="section-title">핵심 트렌드</h2>
+<nav class="topbar">
+  <div class="topbar-inner">
+    <span class="topbar-brand">Study-09 · Summary Sheets</span>
+    <div class="topbar-links">
+      <a href="#ai">AI 주식</a>
+      <a href="#tanheo">주역선해</a>
+      <a href="#kr">사후생</a>
+    </div>
+  </div>
+</nav>
 
-        <article class="card">
-          <p class="card-title">반도체가 주도</p>
-          <p class="card-body">NVDA·AMD·TSM이 AI 칩·HBM 수요를 견인하며 상승 사이클 지속.</p>
-        </article>
+<!-- ════════════════ SECTION 1 ════════════════ -->
+<section id="ai" class="slide s-ai">
+  <h1 class="title">AI 기술 주가 트렌드 — 한눈에 보기</h1>
+  <p class="subtitle">반도체·하이퍼스케일러를 중심으로 한 AI 수혜주 흐름과 핵심 인사이트</p>
 
-        <article class="card">
-          <p class="card-title">빅테크 CapEx 확장</p>
-          <p class="card-body">MSFT·GOOGL·AMZN·META의 클라우드 인프라 투자 가속, 실적 모멘텀 견인.</p>
-        </article>
+  <div class="grid">
+    <div>
+      <h2 class="section-title">핵심 트렌드</h2>
 
-        <article class="card">
-          <p class="card-title">밸류에이션 변동성</p>
-          <p class="card-body">고점 부담과 차익 실현 매물로 단기 변동성 확대 — 종목 차별화 심화.</p>
-        </article>
+      <article class="card">
+        <p class="card-title">반도체가 주도</p>
+        <p class="card-body">NVDA·AMD·TSM이 AI 칩·HBM 수요를 견인하며 상승 사이클 지속.</p>
+      </article>
 
-        <article class="card">
-          <p class="card-title">공급망 수혜 확산</p>
-          <p class="card-body">파운드리·HBM·전력·냉각 인프라까지 AI 수혜 종목군 전방위 확장.</p>
-        </article>
-      </section>
+      <article class="card">
+        <p class="card-title">빅테크 CapEx 확장</p>
+        <p class="card-body">MSFT·GOOGL·AMZN·META의 클라우드 인프라 투자 가속, 실적 모멘텀 견인.</p>
+      </article>
 
-      <section>
-        <h2 class="section-title">대표 종목 한눈에 보기</h2>
+      <article class="card">
+        <p class="card-title">밸류에이션 변동성</p>
+        <p class="card-body">고점 부담과 차익 실현 매물로 단기 변동성 확대 — 종목 차별화 심화.</p>
+      </article>
 
-        <div class="ticker-grid">
-          <article class="card up">
-            <div class="ticker-head">
-              <span class="ticker-sym">NVDA</span>
-              <span class="ticker-arrow up">▲</span>
-            </div>
-            <p class="card-body">AI GPU 독주, 변동성 확대</p>
-          </article>
-
-          <article class="card up">
-            <div class="ticker-head">
-              <span class="ticker-sym">MSFT</span>
-              <span class="ticker-arrow up">▲</span>
-            </div>
-            <p class="card-body">Azure AI 견조, 안정 상승</p>
-          </article>
-
-          <article class="card up">
-            <div class="ticker-head">
-              <span class="ticker-sym">GOOGL</span>
-              <span class="ticker-arrow up">▲</span>
-            </div>
-            <p class="card-body">Gemini·클라우드 동반 강세</p>
-          </article>
-
-          <article class="card up">
-            <div class="ticker-head">
-              <span class="ticker-sym">META</span>
-              <span class="ticker-arrow up">▲</span>
-            </div>
-            <p class="card-body">AI 광고 효율 + 인프라 확장</p>
-          </article>
-
-          <article class="card up">
-            <div class="ticker-head">
-              <span class="ticker-sym">AMZN</span>
-              <span class="ticker-arrow up">▲</span>
-            </div>
-            <p class="card-body">AWS AI 워크로드 확대</p>
-          </article>
-
-          <article class="card vol">
-            <div class="ticker-head">
-              <span class="ticker-sym">AMD</span>
-              <span class="ticker-arrow vol">◆</span>
-            </div>
-            <p class="card-body">MI 시리즈 대안 수요, 변동성↑</p>
-          </article>
-
-          <article class="card up">
-            <div class="ticker-head">
-              <span class="ticker-sym">TSM</span>
-              <span class="ticker-arrow up">▲</span>
-            </div>
-            <p class="card-body">첨단 파운드리 수요 폭증</p>
-          </article>
-
-          <article class="card legend">
-            <p class="card-title">범례</p>
-            <p class="legend-row">
-              <span class="up-mark">▲</span> 상승 추세
-              <span class="vol-mark">◆</span> 변동성 우위
-            </p>
-          </article>
-        </div>
-      </section>
+      <article class="card">
+        <p class="card-title">공급망 수혜 확산</p>
+        <p class="card-body">파운드리·HBM·전력·냉각 인프라까지 AI 수혜 종목군 전방위 확장.</p>
+      </article>
     </div>
 
-    <p class="footer">작성일 2026-06-12 · 일반 지식 기반 정성 요약 · 투자 권유 아님</p>
-  </main>
+    <div>
+      <h2 class="section-title">대표 종목 한눈에 보기</h2>
+      <div class="ticker-grid">
+        <article class="card up">
+          <div class="ticker-head"><span class="ticker-sym">NVDA</span><span class="ticker-arrow up">▲</span></div>
+          <p class="card-body">AI GPU 독주, 변동성 확대</p>
+        </article>
+        <article class="card up">
+          <div class="ticker-head"><span class="ticker-sym">MSFT</span><span class="ticker-arrow up">▲</span></div>
+          <p class="card-body">Azure AI 견조, 안정 상승</p>
+        </article>
+        <article class="card up">
+          <div class="ticker-head"><span class="ticker-sym">GOOGL</span><span class="ticker-arrow up">▲</span></div>
+          <p class="card-body">Gemini·클라우드 동반 강세</p>
+        </article>
+        <article class="card up">
+          <div class="ticker-head"><span class="ticker-sym">META</span><span class="ticker-arrow up">▲</span></div>
+          <p class="card-body">AI 광고 효율 + 인프라 확장</p>
+        </article>
+        <article class="card up">
+          <div class="ticker-head"><span class="ticker-sym">AMZN</span><span class="ticker-arrow up">▲</span></div>
+          <p class="card-body">AWS AI 워크로드 확대</p>
+        </article>
+        <article class="card vol">
+          <div class="ticker-head"><span class="ticker-sym">AMD</span><span class="ticker-arrow vol">◆</span></div>
+          <p class="card-body">MI 시리즈 대안 수요, 변동성↑</p>
+        </article>
+        <article class="card up">
+          <div class="ticker-head"><span class="ticker-sym">TSM</span><span class="ticker-arrow up">▲</span></div>
+          <p class="card-body">첨단 파운드리 수요 폭증</p>
+        </article>
+        <article class="card legend">
+          <p class="card-title">범례</p>
+          <p class="legend-row">
+            <span class="up-mark">▲</span> 상승 추세
+            <span class="vol-mark">◆</span> 변동성 우위
+          </p>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <p class="footer">작성일 2026-06-12 · 일반 지식 기반 정성 요약 · 투자 권유 아님</p>
+</section>
+
+<!-- ════════════════ SECTION 2 ════════════════ -->
+<section id="tanheo" class="s-tanheo">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-text">
+        <h2 class="title">탄허(呑虛)의 『주역선해(周易禪解)』</h2>
+        <p class="subtitle">선(禪)으로 풀어낸 주역 — 유·불·선 회통의 한국적 해석</p>
+      </div>
+      <span class="tag">1-PAGE SUMMARY</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <article class="card">
+      <div class="card-head">
+        <span class="num">01</span>
+        <span class="card-title">저자 — 탄허 택성(呑虛 宅成)</span>
+      </div>
+      <ul>
+        <li>1913 ~ 1983. 한국 근현대 대표 학승</li>
+        <li>월정사 방장, 화엄경·신화엄경합론 역경</li>
+        <li>유·불·선 3교에 두루 통한 한문 석학</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <span class="num">02</span>
+        <span class="card-title">저서 배경</span>
+      </div>
+      <ul>
+        <li>明末 우익지욱(蕅益智旭, 1599~1655)의 『주역선해』 한글 역해</li>
+        <li>원전 한문에 음·훈을 달고 선적 풀이 부연</li>
+        <li>1982년 화엄학연구소를 통해 간행</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <span class="num">03</span>
+        <span class="card-title">핵심 사상</span>
+      </div>
+      <ul>
+        <li>64괘 384효를 선(禪)의 안목으로 재해석</li>
+        <li>음양의 변화 = 일심(一心)의 작용·인연 생멸</li>
+        <li>유교의 의리, 도가의 무위, 불교의 공(空)을 회통</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <span class="num">04</span>
+        <span class="card-title">의의 — 왜 읽는가</span>
+      </div>
+      <ul>
+        <li>주역을 점서(占書)가 아닌 수행서(修行書)로 자리매김</li>
+        <li>동아시아 사상 통섭의 한국적 모범</li>
+        <li>탄허 사상(미래 예언·교육관) 이해의 핵심 텍스트</li>
+      </ul>
+    </article>
+  </div>
+
+  <div class="footer">
+    <span>呑虛 宅成 (1913–1983) · 『周易禪解』 한글 역해 · 화엄학연구소, 1982</span>
+    <em>Study-09 · Summary Sheet</em>
+  </div>
+</section>
+
+<!-- ════════════════ SECTION 3 ════════════════ -->
+<section id="kr" class="s-kr">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-text">
+        <h2 class="title">엘리자베스 퀴블러-로스의 『사후생(死後生)』</h2>
+        <p class="subtitle">죽음은 끝이 아니라 나비처럼 다른 차원으로의 변환(transition)</p>
+      </div>
+      <span class="tag">1-PAGE SUMMARY</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <article class="card">
+      <div class="card-head">
+        <span class="num">01</span>
+        <span class="card-title">저자 — Elisabeth Kübler-Ross</span>
+      </div>
+      <ul>
+        <li>1926~2004. 스위스 출신 미국 정신과 의사</li>
+        <li>죽음학·호스피스 운동의 개척자</li>
+        <li>임종 5단계(부정·분노·타협·우울·수용) 모델 제시</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <span class="num">02</span>
+        <span class="card-title">저서 배경</span>
+      </div>
+      <ul>
+        <li>원제 『On Life after Death』, 1991년 출간</li>
+        <li>임종 환자·NDE 사례 2만여 명 면담 정리</li>
+        <li>『죽음과 죽어감』(1969) 5단계 이론의 후속편</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <span class="num">03</span>
+        <span class="card-title">죽음 이후 — 네 단계</span>
+      </div>
+      <ul>
+        <li>1단계 · 육체 이탈 (나비가 고치를 벗듯)</li>
+        <li>2~3단계 · 사랑한 이·빛의 안내자와 재회</li>
+        <li>4단계 · 빛의 근원 귀환, 일생 파노라마 회고</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <span class="num">04</span>
+        <span class="card-title">핵심 메시지 · 의의</span>
+      </div>
+      <ul>
+        <li>죽음 = 종말이 아닌 다른 차원으로의 변환</li>
+        <li>삶의 궁극 과제 — 무조건적 사랑</li>
+        <li>호스피스·임종 돌봄·사별 교육의 토대</li>
+      </ul>
+    </article>
+  </div>
+
+  <div class="footer">
+    <span>Elisabeth Kübler-Ross (1926–2004) · 『On Life after Death』, 1991</span>
+    <em>Study-09 · Summary Sheet</em>
+  </div>
+</section>
+
 </body>
 </html>
